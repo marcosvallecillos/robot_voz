@@ -1,13 +1,19 @@
 #!/bin/bash
+noticias="https://www.marca.com/"
+archivo_html="Marca.html"
 
-    noticias = "https://www.marca.com/"
-# Comprobar si wget está instalado, y si no, instalarlo
+# Verificación de que el comando wget o curl está en el sistema
 if ! command -v wget &> /dev/null; then
     echo "wget no está instalado. Instalando..."
-    sudo apt-get install wget -y
-    else
-    echo "El comando wget esta instalado"
-fi
+    apt-get update
+    apt-get install -y wget 
+else
+    echo "El comando wget ya está instalado"
+fi 
+
+# Reemplazar caracteres codificados con sus equivalentes utilizando iconv
+iconv -f ISO-8859-1 -t UTF-8 "$archivo_html" > "$archivo_html.tmp" && mv "$archivo_html.tmp" "$archivo_html"
+
 # Descargar el código fuente HTML del portal de noticias
 wget -O marca.html $noticias
 # Extraer titulares con grep y awk (ajusta según la estructura del HTML)

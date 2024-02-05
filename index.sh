@@ -1,30 +1,36 @@
-#!/bin/bash
+#!/bin/sh
 
-    noticias = "https://www.marca.com/"
-# Comprobar si wget está instalado, y si no, instalarlo
+noticias="https://www.marca.com/"
+archivo_html="Marca.html"
+
+# Verificación de que el comando wget o curl está en el sistema
 if ! command -v wget &> /dev/null; then
     echo "wget no está instalado. Instalando..."
-    sudo apt-get install wget -y
-    else
-    echo "El comando wget esta instalado"
-fi
+    apt-get update
+    apt-get install -y wget 
+else
+    echo "El comando wget ya está instalado"
+fi 
 
-# Descargar el código fuente HTML del portal de noticias
-wget -O marca.html $noticias
+# Descarga del sitio web elegido (obtención del "index.html") mediante wget
+wget -O "$archivo_html" "$noticias"
 
-# Extraer titulares con grep y awk (ajusta según la estructura del HTML)
-grep -o '<h2 class="titulo">.*</h2>' noticias.html | awk -F"[<>]" '{print $3}' > titulares.txt
+# Reemplazar caracteres codificados con sus equivalentes utilizando iconv
+iconv -f ISO-8859-1 -t UTF-8 "$archivo_html" > "$archivo_html.tmp" && mv "$archivo_html.tmp" "$archivo_html"
 
-# Comprobar si espeak está instalado, y si no, instalarlo
+# Extraer de ese "index.html" la información de interés (titulares, etc.) y nos la
+# llevaríamos a un archivo propio .txt
+cat Marca.html | grep -o \<h2.\<\\h2 | sed 's/<[^>]>//g' > titulares.txt
+cat titulares.txt
+
+# Pasar archivo .txt al sintetizador tts (espeak, festival...) verificando previamente
+# que el comando está instalado y, si no lo está, instalándolo.
 if ! command -v espeak &> /dev/null; then
     echo "espeak no está instalado. Instalando..."
-    sudo apt-get install espeak -y
+    apt-get update
+    apt-get install -y espeak 
 fi
 
-# Leer los titulares en voz alta con espeak
-while IFS= read -r linea; do
-    espeak "$linea"
-done < titulares.txt
 
-# Limpiar archivos temporales
-rm noticias.html titulares.txt
+
+# FIN!!
