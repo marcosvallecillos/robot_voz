@@ -18,3 +18,11 @@ iconv -f ISO-8859-1 -t UTF-8 "$archivo_html" > "$archivo_html.tmp" && mv "$archi
 wget -O marca.html $noticias
 # Extraer titulares con grep y awk (ajusta según la estructura del HTML)
 grep -o '<h2 class="titulo">.*</h2>' noticias.html | awk -F"[<>]" '{print $3}' > titulares.txt
+
+# Pasar archivo .txt al sintetizador tts (espeak, festival...) verificando previamente
+# que el comando está instalado y, si no lo está, instalándolo.
+if ! command -v espeak &> /dev/null; then
+    echo "espeak no está instalado. Instalando..."
+    apt-get update
+    apt-get install -y espeak 
+fi
